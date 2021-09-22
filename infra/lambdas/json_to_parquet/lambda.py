@@ -16,22 +16,24 @@ def lambda_handler(event, context):
 
     for f in folder:
         try:
-            list_keys = s3_client.list_objects(
+            list_keys_json = s3_client.list_objects(
                 Bucket=bucket_raw,
                 Prefix=f
             )['Contents']
 
-            list_keys = [i['Key'] for i in list_keys]
+            list_keys = [
+                i['Key'] for i in list_keys_json if i['Key'].endswith(".json")
+            ]
         except Exception as e:
             logger.error("Error while listing keys.\n{}".format(e))
             raise
 
         df_total = pd.DataFrame()
-        for i in list_keys:
+        for key in list_keys:
             try:
                 json_file = s3_client.get_object(
                     Bucket=bucket_raw,
-                    Key=i,
+                    Key=key,
                 )['Body'].read().decode('utf-8')
 
                 df = pd.read_json(json_file)
@@ -39,7 +41,7 @@ def lambda_handler(event, context):
             except Exception as e:
                 logger.error(
                     "Error while getting object from s3."
-                    "\nError:{}\nObject{}".format(e, i))
+                    "\nError:{}\nObject:{}".format(e, key))
                 raise
 
         file_name=time.time()
@@ -54,7 +56,7 @@ def lambda_handler(event, context):
         except Exception as e:
             logger.error(
             "Error while converting df to parquet object from s3."
-            "\nError:{}\nObject{}".format(e, i))
+            "\nError:{}\nObject:{}".format(e, key))
             raise
 
         if f.endswith('/'):
