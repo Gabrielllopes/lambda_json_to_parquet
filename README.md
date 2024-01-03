@@ -2,7 +2,7 @@
 
 <img src=/img/j2p.png>
 
-Uses lambda to convert json files into parquet
+Harness the power of AWS Lambda to convert JSON files into Parquet format effortlessly. This project provides a streamlined solution for efficient data transformation, enabling seamless integration into your AWS workflows. Simplify your data processing pipeline with this Lambda-powered JSON to Parquet conversion.
 
 ## Usage example
 
